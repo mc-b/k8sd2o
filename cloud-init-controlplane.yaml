@@ -30,6 +30,7 @@ write_files:
       curl -sfL https://raw.githubusercontent.com/mc-b/lerncloud/main/services/microk8saddons.sh | bash -
 
       sudo su - ubuntu -c "curl -sfL https://raw.githubusercontent.com/mc-b/lerncloud/main/services/jupyter-notebook.sh | bash -"
+      sudo su - ubuntu -c "git clone https://github.com/mc-b/duk.git"      
       sudo su - ubuntu -c "git clone https://github.com/mc-b/k8sd2o.git"
       
       # Join Cluster
