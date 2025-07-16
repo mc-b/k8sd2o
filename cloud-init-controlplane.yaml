@@ -1,0 +1,80 @@
+#cloud-config
+users:
+  - name: ubuntu
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    groups: users, admin
+    shell: /bin/bash
+    lock_passwd: false
+    plain_text_passwd: 'insecure'   
+    ssh_authorized_keys:
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDUHol1mBvP5Nwe3Bzbpq4GsHTSw96phXLZ27aPiRdrzhnQ2jMu4kSgv9xFsnpZgBsQa84EhdJQMZz8EOeuhvYuJtmhAVzAvNjjRak+bpxLPdWlox1pLJTuhcIqfTTSfBYJYB68VRAXJ29ocQB7qn7aDj6Cuw3s9IyXoaKhyb4n7I8yI3r0U30NAcMjyvV3LYOXx/JQbX+PjVsJMzp2NlrC7snz8gcSKxUtL/eF0g+WnC75iuhBbKbNPr7QP/ItHaAh9Tv5a3myBLNZQ56SgnSCgmS0EUVeMNsO8XaaKr2H2x5592IIoz7YRyL4wlOmj35bQocwdahdOCFI7nT9fr6f insecure@lerncloud
+# login ssh and console with password
+ssh_pwauth: true
+disable_root: false 
+packages:
+  - jq
+  - shellinabox
+
+write_files:
+
+  - path: /usr/local/bin/install-services.sh
+    permissions: '0755'
+    content: |
+      #!/bin/bash
+      
+      echo "[INFO] Basis-Installationen starten..."
+
+      curl -sfL https://raw.githubusercontent.com/mc-b/lerncloud/main/services/nfsshare.sh | bash -
+      curl -sfL https://raw.githubusercontent.com/mc-b/lerncloud/main/services/docker.sh | bash -
+      curl -sfL https://raw.githubusercontent.com/mc-b/lerncloud/main/services/microk8s.sh | bash -
+      curl -sfL https://raw.githubusercontent.com/mc-b/lerncloud/main/services/microk8saddons.sh | bash -
+
+      sudo su - ubuntu -c "curl -sfL https://raw.githubusercontent.com/mc-b/lerncloud/main/services/jupyter-notebook.sh | bash -"
+      sudo su - ubuntu -c "git clone https://github.com/mc-b/k8sd2o.git"
+      
+      # Join Cluster
+      sudo su - ubuntu -c "[ -f ~/join.sh ] && { bash ~/join.sh && rm -f ~/join.sh; }"
+
+      # Optional: cert-manager
+      if [ "${INSTALL_CERT_MANAGER}" = "yes" ]; then
+        echo "[INFO] Installiere cert-manager..."
+        sudo su - ubuntu -c "curl -sfL https://raw.githubusercontent.com/mc-b/lerncloud/main/services/cert-manager.sh | bash -"
+      fi
+
+      # Optional: kubevirt
+      if [ "${INSTALL_KUBEVIRT}" = "yes" ]; then
+        echo "[INFO] Installiere kubevirt..."
+        sudo su - ubuntu -c "curl -sfL https://raw.githubusercontent.com/mc-b/lerncloud/main/services/kubevirt.sh | bash -"
+      fi
+
+      # Optional: longhorn
+      if [ "${INSTALL_LONGHORN}" = "yes" ]; then
+        echo "[INFO] Installiere longhorn..."
+        curl -sfL https://raw.githubusercontent.com/mc-b/lerncloud/main/services/storage-patch.sh | bash -
+        sudo su - ubuntu -c "curl -sfL https://raw.githubusercontent.com/mc-b/lerncloud/main/services/longhorn.sh | bash -"
+      fi
+
+      # Optional: Istio
+      if [ "${INSTALL_ISTIO}" = "yes" ]; then
+        echo "[INFO] Installiere Istio..."
+        sudo su - ubuntu -c "curl -sfL https://raw.githubusercontent.com/mc-b/lerncloud/main/services/istio-zipkin.sh | bash -"
+        sudo su - ubuntu -c "curl -sfL https://raw.githubusercontent.com/mc-b/lerncloud/main/services/istio-patch.sh | bash -"
+      fi
+
+      # Optional: Knative
+      if [ "${INSTALL_KNATIVE}" = "yes" ]; then
+        echo "[INFO] Installiere Knative..."
+        sudo su - ubuntu -c "curl -sfL https://raw.githubusercontent.com/mc-b/lerncloud/main/services/knative.sh | bash -"
+        sudo su - ubuntu -c "curl -sfL https://raw.githubusercontent.com/mc-b/lerncloud/main/services/knative-patch.sh | bash -"
+      fi
+
+      echo "[INFO] Installiere Kubernetes Tools..."
+      curl -sfL https://raw.githubusercontent.com/mc-b/lerncloud/main/services/k8stools.sh | bash -
+
+      # Join Cluster: wenn timing Probleme - nochmals versuchen      
+      sudo su - ubuntu -c "[ -f ~/join.sh ] && { bash ~/join.sh && rm -f ~/join.sh; }"
+
+      echo "✅ [INFO] Alle Installationen abgeschlossen."
+
+runcmd:
+  - [ bash, -c, "/usr/local/bin/install-services.sh" ]

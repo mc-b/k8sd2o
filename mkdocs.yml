@@ -1,0 +1,14 @@
+site_name: cascpm
+site_description: 'CAS Cloud and Platform Manager'
+
+repo_url: https://github.com/mc-b/cascpm
+edit_uri: edit/main
+
+plugins:
+  - techdocs-core
+  - search
+  - mkdocs-jupyter  
+
+nav:
+  - Einleitung: ../README.md
+  - Infrastruktur: ../A-infra/README.ipynb

@@ -1,0 +1,75 @@
+#!/bin/bash
+
+set +e  # NICHT bei Fehlern abbrechen!
+
+echo "🔧 [INFO] Worker Nodes joinen"
+JOIN=$(sudo microk8s add-node --token-ttl 3600 | grep worker | tail -1)
+
+# Funktion: Warten auf SSH-Verbindung
+wait_for_ssh() {
+    NODE=$1
+    MAX_RETRIES=60
+    SLEEP_SECONDS=10
+
+    echo "- ⏳ [INFO] Warten auf SSH-Verbindung zu $NODE..."
+
+    for ((i=1; i<=MAX_RETRIES; i++)); do
+        ssh -o BatchMode=yes -o ConnectTimeout=5 $NODE "echo 'SSH OK'" >/dev/null 2>&1
+        if [ $? -eq 0 ]; then
+            echo "- ✅ [INFO] SSH-Verbindung zu $NODE verfügbar"
+            return 0
+        fi
+        echo "- ⌛ [INFO] SSH-Verbindung zu $NODE noch nicht möglich ($i/$MAX_RETRIES)..."
+        sleep $SLEEP_SECONDS
+    done
+
+    echo "- ❌ [ERROR] SSH-Verbindung zu $NODE konnte nicht aufgebaut werden"
+    return 1
+}
+
+# Funktion: Worker joinen mit Retry
+join_worker() {
+    NODE=$1
+    MAX_RETRIES=30
+    SLEEP_SECONDS=10
+
+    echo "- ➡️ [INFO] Joinversuch für $NODE starten"
+
+    for ((i=1; i<=MAX_RETRIES; i++)); do
+        ssh $NODE -- sudo $JOIN
+        if [ $? -eq 0 ]; then
+            echo "- ✅ [INFO] Worker $NODE erfolgreich gejoint"
+            return 0
+        fi
+        echo "- ⚠️ [ERROR] Worker $NODE Join fehlgeschlagen (Versuch $i/$MAX_RETRIES), neuer Versuch in $SLEEP_SECONDS ..."
+        sleep $SLEEP_SECONDS
+    done
+
+    echo "❌ [FATAL] Worker $NODE konnte nicht gejoined werden"
+    return 1
+}
+
+# Worker 1
+wait_for_ssh ${worker1} && join_worker ${worker1}
+
+# Worker 2
+wait_for_ssh ${worker2} && join_worker ${worker2}
+
+# Mounts danach
+echo "- 🔧 [INFO] Worker Nodes /data mounten"
+
+echo "- ➡️ [INFO] Worker 1 /data mounten"
+ssh ${worker1} "sudo mkdir -p /data; sudo mount -t nfs ${controlplane}:/data /data" || echo "⚠️ [ERROR] Worker 1 /data mounten fehlgeschlagen"
+
+echo "- ➡️ [INFO] Worker 2 /data mounten"
+ssh ${worker2} "sudo mkdir -p /data; sudo mount -t nfs ${controlplane}:/data /data" || echo "⚠️ [ERROR] Worker 2 /data mounten fehlgeschlagen"
+
+echo "- 🔧 [INFO] Worker Nodes /var/snap/microk8s/common/default-storage mounten"
+
+echo "- ➡️ [INFO] Worker 1 /default-storage mounten"
+ssh ${worker1} "sudo mount -t nfs ${controlplane}:/var/snap/microk8s/common/default-storage /var/snap/microk8s/common/default-storage" || echo "⚠️ [ERROR] Worker 1 /default-storage mounten fehlgeschlagen"
+
+echo "- ➡️ [INFO] Worker 2 /default-storage mounten"
+ssh ${worker2} "sudo mount -t nfs ${controlplane}:/var/snap/microk8s/common/default-storage /var/snap/microk8s/common/default-storage" || echo "⚠️ [ERROR] Worker 2 /default-storage mounten fehlgeschlagen"
+
+echo "✅ [INFO] Worker Nodes joinen abgeschlossen (Fehler ggf. oben prüfen)"
