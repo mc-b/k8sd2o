@@ -26,4 +26,5 @@ spec:
   lifecycle: experimental
   owner: group:mc-b/mc-b
   dependsOn:
+  - component:mc-b/duk  
   - component:mc-b/lerncloud 
