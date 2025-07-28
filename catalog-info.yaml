@@ -1,0 +1,29 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: k8sd2o
+  namespace: mc-b
+  description: 'Kurs: Kubernetes 2-Day Operations mit CNCF'
+  tags:
+  - containers
+  - docker
+  - kubernetes
+  - microk8s
+  - podman
+  - cloud-native
+  - digicomp
+  - education
+  links:
+  - url: https://github.com/mc-b/k8sd2o
+    title: Repository
+    icon: github
+  annotations:
+    github.com/project-slug: mc-b/k8sd2o
+    backstage.io/source-location: url:https://github.com/mc-b/k8sd2o
+    # backstage.io/techdocs-ref: url:https://github.com/mc-b/k8sd2o
+spec:
+  type: website
+  lifecycle: experimental
+  owner: group:mc-b/mc-b
+  dependsOn:
+  - component:mc-b/lerncloud 
