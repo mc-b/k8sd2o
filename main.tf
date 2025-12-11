@@ -40,7 +40,7 @@ module "vms" {
   }
 
   description = "Kubernetes Nodes"
-  memory      = 6
+  memory      = 8
   cores       = 4
   storage     = 48
 
