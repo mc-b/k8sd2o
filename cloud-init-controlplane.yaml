@@ -54,6 +54,20 @@ write_files:
         curl -sfL https://raw.githubusercontent.com/mc-b/lerncloud/main/services/storage-patch.sh | bash -
         sudo su - ubuntu -c "curl -sfL https://raw.githubusercontent.com/mc-b/lerncloud/main/services/longhorn.sh | bash -"
       fi
+      
+      # Optional: ArgoCD
+      if [ "${INSTALL_ARGOCD}" = "yes" ]; then
+          echo "[INFO] Installiere ArgoCD..."      
+          sudo su - ubuntu -c "curl -sfL https://raw.githubusercontent.com/mc-b/lerncloud/main/services/argocd.sh | bash -"
+      fi
+      
+      # IIoT Deklarationen, Operator und UI
+      if [ "${INSTALL_IIOT}" = "yes" ]; then
+          sudo su - ubuntu -c "
+            git clone https://gitlab.com/ch-mc-b/autoshop-ms/infra/iiot.git &&
+            cd iiot && kubectl apply -f crd &&
+            kubectl apply -f m5stack/sensors -f m5stack/actors -f m5stack/devices -f mqtt-device-ui "
+      fi            
 
       # Optional: Istio
       if [ "${INSTALL_ISTIO}" = "yes" ]; then

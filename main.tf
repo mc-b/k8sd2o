@@ -24,6 +24,9 @@ module "vms" {
         INSTALL_LONGHORN     = var.install_longhorn
         INSTALL_ISTIO        = var.install_istio
         INSTALL_KNATIVE      = var.install_knative
+        INSTALL_ARGOCD       = var.install_argocd
+        INSTALL_IIOT         = var.install_iiot
+
       })
     },
     "worker-01" = {

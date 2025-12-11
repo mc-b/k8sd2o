@@ -50,7 +50,7 @@ locals {
   controlplane_keys = local.is_lernmaas ? [
     for k in keys(module.vms.fqdn_vm) : k if can(regex("^controlplane-01-", k))
   ] : ["controlplane-01"]
-  
+
   controlplane_list = local.is_lernmaas ? [
     for k, v in module.vms.fqdn_vm : v if can(regex("^controlplane-01-", k))
   ] : [try(module.vms.fqdn_vm["controlplane-01"], null)]
@@ -61,15 +61,15 @@ locals {
 
   worker_02_list = local.is_lernmaas ? [
     for k, v in module.vms.fqdn_vm : v if can(regex("^worker-02-", k))
-  ] : [try(module.vms.fqdn_vm["worker-02"], null)]  
+  ] : [try(module.vms.fqdn_vm["worker-02"], null)]
 
   development_list = local.is_lernmaas ? [
     for k, v in module.vms.fqdn_vm : v if can(regex("^dev-", k))
-  ] : [try(module.vms.fqdn_vm["dev"], null)] 
-  
+  ] : [try(module.vms.fqdn_vm["dev"], null)]
+
   build_list = local.is_lernmaas ? [
     for k, v in module.vms.fqdn_vm : v if can(regex("^build-", k))
-  ] : [try(module.vms.fqdn_vm["build"], null)]     
+  ] : [try(module.vms.fqdn_vm["build"], null)]
 }
 
 output "README_lernmaas" {

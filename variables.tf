@@ -26,6 +26,16 @@ variable "install_knative" {
   default = "no"
 }
 
+variable "install_argocd" {
+  type    = string
+  default = "no"
+}
+
+variable "install_iiot" {
+  type    = string
+  default = "no"
+}
+
 # Zugriffsinformationen
 
 variable "url" {
