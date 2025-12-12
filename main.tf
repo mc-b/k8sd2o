@@ -6,17 +6,17 @@ module "vms" {
   machines = {
     # Development 
     "dev" = {
-      hostname = "dev"
+      hostname = "dev-${var.host_no + 5}-${terraform.workspace}"
       userdata = templatefile("${path.root}/cloud-init-development.yaml", {})
     },
     # Build CI/CD
     "build" = {
-      hostname = "build"
+      hostname = "build-${var.host_no + 6}-${terraform.workspace}"
       userdata = templatefile("${path.root}/cloud-init-build.yaml", {})
     },
     # Production
     "controlplane-01" = {
-      hostname    = "control"
+      hostname    = "control-${var.host_no}-${terraform.workspace}"
       description = "Kubernetes Control Plane Node"
       userdata = templatefile("${path.root}/cloud-init-controlplane.yaml", {
         INSTALL_CERT_MANAGER = var.install_cert_manager
@@ -30,11 +30,11 @@ module "vms" {
       })
     },
     "worker-01" = {
-      hostname = "worker1"
+      hostname = "worker-${var.host_no + 1}-${terraform.workspace}"
       userdata = templatefile("${path.root}/cloud-init-worker.yaml", {})
     },
     "worker-02" = {
-      hostname = "worker2"
+      hostname = "worker-${var.host_no + 2}-${terraform.workspace}"
       userdata = templatefile("${path.root}/cloud-init-worker.yaml", {})
     }
   }

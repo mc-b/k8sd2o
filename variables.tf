@@ -36,6 +36,13 @@ variable "install_iiot" {
   default = "no"
 }
 
+variable "host_no" {
+  description = "Host-No fuer die erste Host-IP Nummer"
+  type        = number
+  default     = 10
+}
+
+
 # Zugriffsinformationen
 
 variable "url" {
