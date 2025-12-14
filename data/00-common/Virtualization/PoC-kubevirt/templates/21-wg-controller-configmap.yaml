@@ -25,6 +25,9 @@ data:
     SYNC_INTERVAL="15"
     GW_PRIV="/config/privatekey"
 
+    # Alle gültigen Peer-Typen (VMs + Clients)
+    PEER_REGEX="^(module-[0-9]+-klasse|client-[0-9]+)$"
+
     # ------------------------------------------------------------
     # 1) Gateway Private/Public Key
     # ------------------------------------------------------------
@@ -36,7 +39,6 @@ data:
 
     GW_PUB="$(wg pubkey < "$GW_PRIV")"
 
-    # PublicKey als Secret publizieren (idempotent)
     kubectl create secret generic wg-gateway-pub \
       --from-literal=publickey="$GW_PUB" \
       --dry-run=client -o yaml | kubectl apply -f -
@@ -51,33 +53,29 @@ data:
       ip addr add "$GW_IP" dev "$WG_IF"
     fi
 
-    # WICHTIG: ListenPort explizit setzen
     wg set "$WG_IF" \
       private-key "$GW_PRIV" \
       listen-port "$WG_PORT"
 
     ip link set up dev "$WG_IF"
-    
-    # ------------------------------------------------------------
-    # Routing & NAT aktivieren
-    # ------------------------------------------------------------
-    
-    echo "[WG] enable IP forwarding"
-    sysctl -w net.ipv4.ip_forward=1
-    
-    # Default-Interface ermitteln (meist eth0)
-    EXT_IF="$(ip route | awk '/default/ {print $5}')"
-    
-    echo "[WG] enable NAT via $EXT_IF"
-    
-    iptables -t nat -C POSTROUTING -s 10.10.0.0/24 -o "$EXT_IF" -j MASQUERADE 2>/dev/null \
-      || iptables -t nat -A POSTROUTING -s 10.10.0.0/24 -o "$EXT_IF" -j MASQUERADE
-    
-    iptables -C FORWARD -i wg0 -j ACCEPT 2>/dev/null || iptables -A FORWARD -i wg0 -j ACCEPT
-    iptables -C FORWARD -o wg0 -j ACCEPT 2>/dev/null || iptables -A FORWARD -o wg0 -j ACCEPT
 
     # ------------------------------------------------------------
-    # 3) Peer-Synchronisation
+    # 3) Routing & NAT aktivieren
+    # ------------------------------------------------------------
+    echo "[WG] enable IP forwarding"
+    sysctl -w net.ipv4.ip_forward=1
+
+    EXT_IF="$(ip route | awk '/default/ {print $5}')"
+    echo "[WG] enable NAT via $EXT_IF"
+
+    iptables -t nat -C POSTROUTING -s 10.10.0.0/24 -o "$EXT_IF" -j MASQUERADE 2>/dev/null \
+      || iptables -t nat -A POSTROUTING -s 10.10.0.0/24 -o "$EXT_IF" -j MASQUERADE
+
+    iptables -C FORWARD -i "$WG_IF" -j ACCEPT 2>/dev/null || iptables -A FORWARD -i "$WG_IF" -j ACCEPT
+    iptables -C FORWARD -o "$WG_IF" -j ACCEPT 2>/dev/null || iptables -A FORWARD -o "$WG_IF" -j ACCEPT
+
+    # ------------------------------------------------------------
+    # 4) Peer-Synchronisation (stabil, symmetrisch)
     # ------------------------------------------------------------
     while true; do
       echo "[WG] syncing peers"
@@ -94,22 +92,20 @@ data:
         continue
       }
 
-      # Desired Public Keys aus Secrets
-      DESIRED_KEYS="$(echo "$JSON" | jq -r '
+      # Desired Public Keys (VMs + Clients)
+      DESIRED_KEYS="$(echo "$JSON" | jq -r --arg re "$PEER_REGEX" '
         .items[]
-        | select(.metadata.name | test("^module-[0-9]+-klasse$"))
+        | select(.metadata.name | test($re))
         | .data.publickey
         | @base64d
       ' | sort)"
 
       CURRENT_KEYS="$(wg show "$WG_IF" peers | sort)"
 
-      # Neue Peers hinzufügen (VMs + Clients)
-      echo "$JSON" | jq -c '
+      # Neue Peers hinzufügen
+      echo "$JSON" | jq -c --arg re "$PEER_REGEX" '
         .items[]
-        | select(
-            .metadata.name | test("^(module-[0-9]+-klasse|client-[0-9]+)$")
-          )
+        | select(.metadata.name | test($re))
         | {
             name: .metadata.name,
             pub: (.data.publickey | @base64d)
@@ -117,7 +113,7 @@ data:
       ' | while read -r line; do
           NAME="$(echo "$line" | jq -r .name)"
           PUB="$(echo "$line" | jq -r .pub)"
-      
+
           case "$NAME" in
             module-*-klasse)
               IDX="$(echo "$NAME" | sed -E 's/module-([0-9]+)-klasse/\1/')"
@@ -131,7 +127,7 @@ data:
               continue
               ;;
           esac
-      
+
           if ! echo "$CURRENT_KEYS" | grep -qx "$PUB"; then
             echo "[WG] add peer $NAME ($IP)"
             wg set "$WG_IF" peer "$PUB" allowed-ips "$IP"
