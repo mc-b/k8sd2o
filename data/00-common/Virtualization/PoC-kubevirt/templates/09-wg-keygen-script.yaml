@@ -34,7 +34,7 @@ data:
         -e "s#__GW_PUB__#$GW_PUB#g" \
         /scripts/userdata.tpl > /tmp/userdata.yaml
 
-      kubectl create secret generic "module-$i-klasse" \
+      kubectl create secret generic "vm-$i" \
         --from-file=userData=/tmp/userdata.yaml \
         --from-literal=publickey="$PUB" \
         --dry-run=client -o yaml | kubectl apply -f -

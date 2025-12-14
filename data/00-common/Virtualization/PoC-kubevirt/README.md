@@ -2,25 +2,37 @@
 
 ## 0. Quick Start
 
+**VMs in Kubernetes erstellen**
+
 Installation
 
-    helm install m346 . -n m01 --create-namespace
+    helm install lab . -n m346-ap21a --create-namespace
     
 Kontrolle
 
-    kubectl get sa,job,secrets,pvc,vmi -n m01
+    kubectl get sa,job,secrets,pvc,vmi -n m346-ap21a
     
 Löschen
 
-    helm uninstall m346 -n m01 && kubectl delete ns m01    
+    helm uninstall lab -n m346-ap21a && kubectl delete ns m346-ap21a    
+    
+Testen
+
+    virtctl console -n m346-ap21a vm-0  
+
+**Client Zugriff**
 
 Client Zugriff mittels erstellen Client (Public) Key und WireGuard Konfigurationdatei erlauben
 
-    ./wg-client-config.sh 201 m01 192.168.1.36
+    ./wg-client-config.sh 201 m346-ap21a 192.168.1.36
+    
+Testen
+
+    ssh -i ~/.ssh/lerncloud debian@10.10.0.10    
     
 Client Zugriff wieder entziehen
 
-    kubectl delete secret client-201 -n m01
+    kubectl delete secret client-201 -n m346-ap21a
     
 ---
 
@@ -68,8 +80,8 @@ Bereitstellung einer **isolierten, skalierbaren Lernumgebung** pro Modul/Klasse,
 │                  ▼                         │
 │        Kubernetes Secrets (Namespace)      │
 │        ──────────────────────────────      │
-│        module-0-klasse                     │
-│        module-1-klasse                     │
+│        vm-0                     │
+│        vm-1                     │
 │        external-client-admin               │
 │        └─ publickey                        │
 │        └─ userData (cloud-init)            │
@@ -117,7 +129,7 @@ Bereitstellung einer **isolierten, skalierbaren Lernumgebung** pro Modul/Klasse,
   * PublicKey (für Gateway)
 * erstellt Kubernetes Secrets:
 
-  * `module-<n>-klasse`
+  * `vm-<n>`
 
 **Wichtig:**
 
@@ -133,7 +145,7 @@ Jedes Secret repräsentiert **einen WireGuard-Peer**.
 Beispiel:
 
 ```
-Secret: module-0-klasse
+Secret: vm-0
   ├─ publickey   → Gateway liest diesen
   └─ userData    → VM nutzt diesen
 ```

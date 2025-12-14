@@ -1,11 +1,6 @@
-module: m346
-klasse: ap17a
-
-wg:
-  keyCount: 20
-  subnet: 10.10.0.0/24
 
 vm:
-  count: 2
+  count: 1
   cpu: 2
   memory: 1Gi
+  storage: 8Gi

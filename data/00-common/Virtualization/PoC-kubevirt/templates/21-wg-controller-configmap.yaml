@@ -26,7 +26,7 @@ data:
     GW_PRIV="/config/privatekey"
 
     # Alle gültigen Peer-Typen (VMs + Clients)
-    PEER_REGEX="^(module-[0-9]+-klasse|client-[0-9]+)$"
+    PEER_REGEX="^(vm-[0-9]+|client-[0-9]+)$"
 
     # ------------------------------------------------------------
     # 1) Gateway Private/Public Key
@@ -115,8 +115,8 @@ data:
           PUB="$(echo "$line" | jq -r .pub)"
 
           case "$NAME" in
-            module-*-klasse)
-              IDX="$(echo "$NAME" | sed -E 's/module-([0-9]+)-klasse/\1/')"
+            vm-*)
+              IDX="$(echo "$NAME" | sed -E 's/vm-([0-9]+)/\1/')"
               IP="$BASE_IP.$((IDX+10))/32"
               ;;
             client-*)
