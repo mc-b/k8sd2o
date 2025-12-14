@@ -1,0 +1,36 @@
+{{- range $i := until (.Values.vm.count | int) }}
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: vm-{{ $i }}
+spec:
+  running: true
+  template:
+    spec:
+      domain:
+        cpu:
+          cores: {{ $.Values.vm.cpu }}
+        resources:
+          requests:
+            memory: {{ $.Values.vm.memory }}
+        devices:
+          disks:
+            - name: rootdisk
+              disk:
+                bus: virtio
+            - name: cloudinitdisk
+              cdrom:
+                bus: sata
+                readonly: true
+
+      volumes:
+        - name: rootdisk
+          persistentVolumeClaim:
+            claimName: debian-vm-{{ $i }}
+
+        - name: cloudinitdisk
+          cloudInitNoCloud:
+            secretRef:
+              name: module-{{ $i }}-klasse
+---
+{{- end }}

@@ -1,0 +1,86 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wg-keygen-script
+data:
+  keygen.sh: |-
+    #!/bin/sh
+    set -e
+
+    echo "[KEYGEN] starting"
+    apk add --no-cache wireguard-tools kubectl jq sed
+
+    echo "[KEYGEN] waiting for gateway public key"
+    until kubectl get secret wg-gateway-pub >/dev/null 2>&1; do
+      sleep 2
+    done
+
+    GW_PUB="$(kubectl get secret wg-gateway-pub -o json | jq -r '.data.publickey | @base64d')"
+    COUNT="{{ .Values.vm.count }}"
+
+    i=0
+    while [ "$i" -lt "$COUNT" ]; do
+      echo "[KEYGEN] generating key for vm-$i"
+
+      umask 077
+      PRIV="$(wg genkey)"
+      PUB="$(printf "%s" "$PRIV" | wg pubkey)"
+      IP="$((i+10))"
+
+      sed \
+        -e "s/__IDX__/$i/g" \
+        -e "s/__IP__/$IP/g" \
+        -e "s#__PRIV__#$PRIV#g" \
+        -e "s#__GW_PUB__#$GW_PUB#g" \
+        /scripts/userdata.tpl > /tmp/userdata.yaml
+
+      kubectl create secret generic "module-$i-klasse" \
+        --from-file=userData=/tmp/userdata.yaml \
+        --from-literal=publickey="$PUB" \
+        --dry-run=client -o yaml | kubectl apply -f -
+
+      i=$((i+1))
+    done
+
+    echo "[KEYGEN] done"
+
+  userdata.tpl: |-
+    #cloud-config
+    hostname: vm-__IDX__
+
+    users:
+      - name: debian
+        sudo: ALL=(ALL) NOPASSWD:ALL
+        shell: /bin/bash
+        lock_passwd: false
+        ssh_authorized_keys:
+          - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDUHol1mBvP5Nwe3Bzbpq4GsHTSw96phXLZ27aPiRdrzhnQ2jMu4kSgv9xFsnpZgBsQa84EhdJQMZz8EOeuhvYuJtmhAVzAvNjjRak+bpxLPdWlox1pLJTuhcIqfTTSfBYJYB68VRAXJ29ocQB7qn7aDj6Cuw3s9IyXoaKhyb4n7I8yI3r0U30NAcMjyvV3LYOXx/JQbX+PjVsJMzp2NlrC7snz8gcSKxUtL/eF0g+WnC75iuhBbKbNPr7QP/ItHaAh9Tv5a3myBLNZQ56SgnSCgmS0EUVeMNsO8XaaKr2H2x5592IIoz7YRyL4wlOmj35bQocwdahdOCFI7nT9fr6f insecure@lerncloud
+
+    chpasswd:
+      list: |
+        debian:insecure
+      expire: false
+    disable_root: false      
+
+    packages:
+      - wireguard
+      - qemu-guest-agent
+
+    write_files:
+      - path: /etc/wireguard/wg0.conf
+        permissions: "0600"
+        owner: root:root
+        content: |
+          [Interface]
+          PrivateKey = __PRIV__
+          Address = 10.10.0.__IP__/32
+
+          [Peer]
+          PublicKey = __GW_PUB__
+          Endpoint = wg-gateway:51820
+          AllowedIPs = 10.10.0.0/24
+          PersistentKeepalive = 25
+
+    runcmd:
+      - systemctl enable wg-quick@wg0
+      - systemctl start wg-quick@wg0
