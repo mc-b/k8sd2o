@@ -1,6 +1,6 @@
 
 vm:
-  count: 2
+  count: 1
   cpu: 2
   memory: 1Gi
   storage: 8Gi
@@ -8,3 +8,8 @@ vm:
   image:
     name: base-image
     url: https://cloud.debian.org/images/cloud/bullseye/latest/debian-11-generic-amd64.qcow2  
+
+wgClients:
+  startHostId: 100
+  count: 5
+  endpointNode: 192.168.1.36
