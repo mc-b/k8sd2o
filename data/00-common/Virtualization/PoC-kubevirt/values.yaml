@@ -1,25 +1,23 @@
-# VM Default Werte - koennen ueberschrieben werden 
+ 
 vm:
   count: 3
+  
+  # VM Default Werte - koennen ueberschrieben werden
   cpu: 2
-  memory: 1Gi
+  memory: 2Gi
   storage: 8Gi
   userdata: https://raw.githubusercontent.com/tbz-it/M122/refs/heads/master/cloud-init.yaml 
   image:
     name: base-image
-    url: https://cloud.debian.org/images/cloud/bullseye/latest/debian-11-generic-amd64.qcow2  
+    url: https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img
 
 #vm-0:
-#  memory: 2Gi
-#  userdata: https://raw.githubusercontent.com/tbz-it/M158/refs/heads/main/cloud-init.yaml
-#  image:
-#    name: base-image
-#    url: https://cloud.debian.org/images/cloud/trixie/latest/debian-13-generic-amd64.qcow2    
-#
-#vm-1:
 #  memory: 1Gi
 #  storage: 4Gi
 #  userdata: https://raw.githubusercontent.com/tbz-it/M100/refs/heads/master/cloud-init.yaml
+#  image:
+#    name: base-image
+#    url: https://cloud.debian.org/images/cloud/trixie/latest/debian-13-generic-amd64.qcow2 
 
 wgClients:
   startHostId: 100
