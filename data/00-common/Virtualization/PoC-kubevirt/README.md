@@ -10,7 +10,7 @@ Installation
     
 Kontrolle
 
-    kubectl get sa,job,secrets,pvc,vmi -n m346-ap21a
+    kubectl get sc,pv,pvc,dv,vm,vmi -n m346-ap21a
     
 Löschen
 

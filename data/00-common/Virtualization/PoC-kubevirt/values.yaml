@@ -1,7 +1,10 @@
 
 vm:
-  count: 3
+  count: 2
   cpu: 2
   memory: 1Gi
   storage: 8Gi
   userdata: https://raw.githubusercontent.com/tbz-it/M122/refs/heads/master/cloud-init.yaml 
+  image:
+    name: base-image
+    url: https://cloud.debian.org/images/cloud/bullseye/latest/debian-11-generic-amd64.qcow2  
