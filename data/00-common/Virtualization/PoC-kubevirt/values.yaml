@@ -1,6 +1,7 @@
 
 vm:
-  count: 1
+  count: 3
   cpu: 2
   memory: 1Gi
   storage: 8Gi
+  userdata: https://raw.githubusercontent.com/tbz-it/M122/refs/heads/master/cloud-init.yaml 

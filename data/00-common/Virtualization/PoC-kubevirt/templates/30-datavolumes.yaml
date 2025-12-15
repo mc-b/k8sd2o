@@ -2,7 +2,7 @@
 apiVersion: cdi.kubevirt.io/v1beta1
 kind: DataVolume
 metadata:
-  name: debian-vm-{{ $i }}
+  name: vm-{{ $i }}
 spec:
   source:
     http:

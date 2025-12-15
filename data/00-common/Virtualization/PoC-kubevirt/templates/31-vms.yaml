@@ -18,6 +18,7 @@ spec:
             - name: rootdisk
               disk:
                 bus: virtio
+
             - name: cloudinitdisk
               cdrom:
                 bus: sata
@@ -26,11 +27,12 @@ spec:
       volumes:
         - name: rootdisk
           persistentVolumeClaim:
-            claimName: debian-vm-{{ $i }}
+            claimName: vm-{{ $i }}
 
         - name: cloudinitdisk
           cloudInitNoCloud:
             secretRef:
               name: vm-{{ $i }}
+
 ---
 {{- end }}
