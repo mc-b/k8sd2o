@@ -1,4 +1,5 @@
 {{- range $i := until (.Values.vm.count | int) }}
+{{- $vm := fromYaml (include "vm.values" (dict "index" $i "values" $.Values)) }}
 apiVersion: cdi.kubevirt.io/v1beta1
 kind: DataVolume
 metadata:
@@ -6,12 +7,12 @@ metadata:
 spec:
   source:
     http:
-      url: {{ $.Values.vm.image.url }}
+      url: {{ $vm.image.url }}
   pvc:
     accessModes:
       - ReadWriteOnce
     resources:
       requests:
-        storage: {{ $.Values.vm.storage }}
+        storage: {{ $vm.storage }}
 ---
 {{- end }}

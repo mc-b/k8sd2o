@@ -10,8 +10,31 @@ data:
     echo "[KEYGEN] starting"
     apk add --no-cache wireguard-tools kubectl jq curl
 
-    USERDATA_URL="{{ .Values.vm.userdata }}"
     COUNT="{{ .Values.vm.count }}"
+    DEFAULT_USERDATA="{{ .Values.vm.userdata }}"
+
+    # -------- userdata array vorbereiten (per Helm gerendert) --------
+    USERDATA_LIST=""
+    i=0
+    while [ "$i" -lt "$COUNT" ]; do
+      case "$i" in
+{{- range $k, $v := .Values }}
+{{- if hasPrefix "vm-" $k }}
+{{- if hasKey $v "userdata" }}
+        {{ trimPrefix "vm-" $k }})
+          USERDATA_LIST="$USERDATA_LIST {{ $v.userdata }}"
+          ;;
+{{- end }}
+{{- end }}
+{{- end }}
+        *)
+          USERDATA_LIST="$USERDATA_LIST __DEFAULT__"
+          ;;
+      esac
+      i=$((i+1))
+    done
+
+    set -- $USERDATA_LIST
 
     echo "[KEYGEN] waiting for gateway public key"
     until kubectl get secret wg-gateway-pub >/dev/null 2>&1; do
@@ -22,23 +45,27 @@ data:
 
     i=0
     while [ "$i" -lt "$COUNT" ]; do
-      echo "[KEYGEN] processing vm-$i"
+      eval "UD=\${$((i+1))}"
 
-      ### 1️⃣ cloud-init von RAW URL holen
+      if [ "$UD" = "__DEFAULT__" ]; then
+        USERDATA_URL="$DEFAULT_USERDATA"
+      else
+        USERDATA_URL="$UD"
+      fi
+
+      echo "[KEYGEN] processing vm-$i (userdata=$USERDATA_URL)"
+
       HTTP_CODE="$(curl -sSL -w '%{http_code}' -o /tmp/userdata.yaml "$USERDATA_URL" || echo 000)"
-      
+
       if [ "$HTTP_CODE" != "200" ]; then
         echo "[KEYGEN][WARN] cloud-init download failed (HTTP $HTTP_CODE)"
-        echo "[KEYGEN][WARN] vm-$i will be created WITHOUT cloud-init"
         rm -f /tmp/userdata.yaml
       else
-
-        ### 2️⃣ WireGuard Keys + Config erzeugen
         umask 077
         PRIV="$(wg genkey)"
         PUB="$(printf "%s" "$PRIV" | wg pubkey)"
         IP="$((i+10))"
-  
+
         cat >> /tmp/userdata.yaml <<EOF
     write_files:
       - path: /etc/wireguard/vm-$i.conf
@@ -47,12 +74,12 @@ data:
         content: |
           [Interface]
           PrivateKey = $PRIV
-          Address = 10.10.0.$IP/32            
+          Address = 10.10.0.$IP/32
     
           [Peer]
           PublicKey = $GW_PUB
           Endpoint = wg-gateway:51820
-          AllowedIPs = 10.10.0.0/24      
+          AllowedIPs = 10.10.0.0/24
           PersistentKeepalive = 25
     EOF
 

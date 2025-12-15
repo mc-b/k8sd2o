@@ -1,4 +1,5 @@
 {{- range $i := until (.Values.vm.count | int) }}
+{{- $vm := fromYaml (include "vm.values" (dict "index" $i "values" $.Values)) }}
 apiVersion: kubevirt.io/v1
 kind: VirtualMachine
 metadata:
@@ -12,10 +13,10 @@ spec:
     spec:
       domain:
         cpu:
-          cores: {{ $.Values.vm.cpu }}
+          cores: {{ $vm.cpu }}
         resources:
           requests:
-            memory: {{ $.Values.vm.memory }}
+            memory: {{ $vm.memory }}
         devices:
           disks:
             - name: rootdisk
