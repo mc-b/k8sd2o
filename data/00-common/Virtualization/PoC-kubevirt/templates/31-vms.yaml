@@ -6,6 +6,9 @@ metadata:
 spec:
   running: true
   template:
+    metadata:
+      labels:
+        kubevirt.io/domain: vm-{{ $i }}
     spec:
       domain:
         cpu:
@@ -18,21 +21,23 @@ spec:
             - name: rootdisk
               disk:
                 bus: virtio
-
             - name: cloudinitdisk
               cdrom:
                 bus: sata
                 readonly: true
-
+          interfaces:
+            - name: default
+              masquerade: {}
+      networks:
+        - name: default
+          pod: {}
       volumes:
         - name: rootdisk
           persistentVolumeClaim:
             claimName: vm-{{ $i }}
-
         - name: cloudinitdisk
           cloudInitNoCloud:
             secretRef:
               name: vm-{{ $i }}
-
 ---
 {{- end }}
