@@ -22,18 +22,16 @@ Testen
 
 **Client Zugriff**
 
-Client Zugriff mittels erstellen Client (Public) Key und WireGuard Konfigurationdatei erlauben
+Müssen WireGuard aktiviert haben. Anzeige der WireGuard Konfiguration siehe von `helm`, z.B.:
 
-    ./wg-client-config.sh 201 m346-ap21a 192.168.1.36
-    
-Testen
+    kubectl get secret client-100 \
+      -n m346-ap21a \
+      -o jsonpath='{.data.wg0\.conf}' | base64 -d
+ 
+ssh-Zugriff 
 
     ssh -i ~/.ssh/lerncloud debian@10.10.0.10    
-    
-Client Zugriff wieder entziehen
-
-    kubectl delete secret client-201 -n m346-ap21a
-    
+   
 ---
 
 ## 1. Zielsetzung
