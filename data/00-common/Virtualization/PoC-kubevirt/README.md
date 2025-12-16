@@ -7,6 +7,7 @@
 Installation
 
     helm install lab . -n m346-ap21a --create-namespace
+
     
 Kontrolle
 
@@ -18,7 +19,7 @@ Löschen
     
 Testen
 
-    virtctl console -n m346-ap21a vm-0  
+    virtctl console vm-0 -n m346-ap21a 
 
 **Client Zugriff**
 
