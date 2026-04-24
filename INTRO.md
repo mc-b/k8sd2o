@@ -1,7 +1,7 @@
-Docker und Kubernetes – Übersicht und Einsatz
-=============================================
+Kubernetes 2-Day Operations mit CNCF
+====================================
 
-Umgebung zum Kurs: [Docker und Kubernetes – Übersicht und Einsatz](https://github.com/mc-b/duk).
+Umgebung zum Kurs: [Kubernetes 2-Day Operations mit CNCF ](https://www.digicomp.ch/d/k8sd2o).
 
 Dashboard
 ---------
