@@ -1,58 +1,80 @@
+###
+#   Kubernetes Umgebung
+#
 
-# K8s Cluster
-module "vms" {
-  source = local.selected_source
+module "control" {
+  #source     = "./terraform-lerncloud-module"
+  source = "git::https://github.com/mc-b/terraform-lerncloud-multipass"
+  #source     = "git::https://github.com/mc-b/terraform-lerncloud-maas"
+  #source     = "git::https://github.com/mc-b/terraform-lerncloud-lernmaas"  
+  #source     = "git::https://github.com/mc-b/terraform-lerncloud-aws"
+  #source     = "git::https://github.com/mc-b/terraform-lerncloud-azure"
+  #source     = "git::https://github.com/mc-b/terraform-lerncloud-proxmox"      
+  module      = "control-01-${terraform.workspace}"
+  description = "Kubernetes Control Plane Node"
+  userdata    = "cloud-init-control.yaml"
+  depends_on = [
+    module.worker-01,
+    module.worker-02
+  ]
 
-  machines = {
-    # Development 
-    "dev" = {
-      hostname = "dev-${var.host_no + 5}-${terraform.workspace}"
-      userdata = templatefile("${path.root}/cloud-init-development.yaml", {})
-    },
-    # Build CI/CD
-    "build" = {
-      hostname = "build-${var.host_no + 6}-${terraform.workspace}"
-      userdata = templatefile("${path.root}/cloud-init-build.yaml", {})
-    },
-    # Production
-    "controlplane-01" = {
-      hostname    = "control-${var.host_no}-${terraform.workspace}"
-      description = "Kubernetes Control Plane Node"
-      userdata = templatefile("${path.root}/cloud-init-controlplane.yaml", {
-        INSTALL_CERT_MANAGER = var.install_cert_manager
-        INSTALL_KUBEVIRT     = var.install_kubevirt
-        INSTALL_LONGHORN     = var.install_longhorn
-        INSTALL_ISTIO        = var.install_istio
-        INSTALL_KNATIVE      = var.install_knative
-        INSTALL_ARGOCD       = var.install_argocd
-        INSTALL_IIOT         = var.install_iiot
+  cores   = 4
+  memory  = 12
+  storage = 32
+  ports   = [22, 80, 16443, 25000, 2049, 4200]
 
-      })
-    },
-    "worker-01" = {
-      hostname = "worker-${var.host_no + 1}-${terraform.workspace}"
-      userdata = templatefile("${path.root}/cloud-init-worker.yaml", {})
-    },
-    "worker-02" = {
-      hostname = "worker-${var.host_no + 2}-${terraform.workspace}"
-      userdata = templatefile("${path.root}/cloud-init-worker.yaml", {})
-    }
-  }
-
-  description = "Kubernetes Nodes"
-  memory      = 8
-  cores       = 4
-  storage     = 48
-
-  ports = [22, 80, 443, 16443]
-
-  # MAAS: URL MAAS, Azure: Resource Group, Google: Project-Id
   url = var.url
-  # MAAS: API-Key, Azure: Subscription-Id
   key = var.key
-  # MAAS: optionales WireGuard VPN
   vpn = var.vpn
 }
 
+module "worker-01" {
+  count = var.create_worker_01 ? 1 : 0
 
+  #source     = "./terraform-lerncloud-module"
+  source = "git::https://github.com/mc-b/terraform-lerncloud-multipass"
+  #source     = "git::https://github.com/mc-b/terraform-lerncloud-maas"
+  #source     = "git::https://github.com/mc-b/terraform-lerncloud-lernmaas"  
+  #source     = "git::https://github.com/mc-b/terraform-lerncloud-aws"
+  #source     = "git::https://github.com/mc-b/terraform-lerncloud-azure"
+  #source     = "git::https://github.com/mc-b/terraform-lerncloud-proxmox"    
+  module      = "worker-01-${terraform.workspace}"
+  description = "Kubernetes Worker Node"
+  userdata    = "cloud-init-worker.yaml"
 
+  cores   = 2
+  memory  = 4
+  storage = 32
+  ports   = [22, 80, 16443, 25000, 2049, 4200]
+
+  url = var.url
+  key = var.key
+  vpn = var.vpn
+}
+
+module "worker-02" {
+  count = var.create_worker_02 ? 1 : 0
+
+  #source     = "./terraform-lerncloud-module"
+  source = "git::https://github.com/mc-b/terraform-lerncloud-multipass"
+  #source     = "git::https://github.com/mc-b/terraform-lerncloud-maas"
+  #source     = "git::https://github.com/mc-b/terraform-lerncloud-lernmaas"  
+  #source     = "git::https://github.com/mc-b/terraform-lerncloud-aws"
+  #source     = "git::https://github.com/mc-b/terraform-lerncloud-azure"
+  #source     = "git::https://github.com/mc-b/terraform-lerncloud-proxmox"    
+  module      = "worker-02-${terraform.workspace}"
+  description = "Kubernetes Worker Node"
+  userdata    = "cloud-init-worker.yaml"
+  depends_on = [
+    module.worker-01
+  ]
+
+  cores   = 2
+  memory  = 4
+  storage = 32
+  ports   = [22, 80, 16443, 25000, 2049, 4200]
+
+  url = var.url
+  key = var.key
+  vpn = var.vpn
+}

@@ -28,15 +28,6 @@ Terraform verwendet [Multipass](https://multipass.run/) um mehrere VMs zu erstel
 
 Nach erfolgreicher Installation werden weitere Informationen für den Zugriff auf die VMs angezeigt.
 
-### Beispiele und Übungen
-
-* [01 Development](data/01-dev/)
-* [02 Build](data/02-build/)
-* [03 Production](data/03-prod/)
-
-* [Auto Shop GmbH – Übersicht](https://gitlab.com/ch-mc-b/autoshop-ms)
-* [IoT Kit M5stack](https://github.com/mc-b/iotkitm5)
-
 ### Lizenz (Attribution-NonCommercial-ShareAlike 4.0 International)
 
 ![](http://www.creativecommons.ch/wp-content/uploads/2014/03/by-nc-sa1.png)
