@@ -28,6 +28,15 @@ Terraform verwendet [Multipass](https://multipass.run/) um mehrere VMs zu erstel
 
 Nach erfolgreicher Installation werden weitere Informationen für den Zugriff auf die VMs angezeigt.
 
+### Deployment auf lernvirt Umgebungen
+  
+    cd lernvirt
+    helm install k8sd2o . -n k8sd2o --create-namespace -f ${HELM_VALUES_HOST} -f ../k8sd2o/lernvirt-values.yaml 
+    
+Deinstallation
+    
+    helm uninstall k8sd2o -n k8sd2o && kubectl delete ns k8sd2o
+
 ### Lizenz (Attribution-NonCommercial-ShareAlike 4.0 International)
 
 ![](http://www.creativecommons.ch/wp-content/uploads/2014/03/by-nc-sa1.png)
