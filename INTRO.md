@@ -1,39 +1,23 @@
-Kubernetes 2-Day Operations mit CNCF 
+Kubernetes 2-Day Operations mit CNCF
 ====================================
 
 Umgebung zum Kurs: [Kubernetes 2-Day Operations mit CNCF ](https://www.digicomp.ch/d/k8sd2o).
-   
-SSH Access
-----------
 
-Development: 
-    ssh -i ~/.ssh/lerncloud ubuntu@${development_fqdn}
+Dashboard bzw. neu Headlamp
+---------------------------
+
+Das Kubernetes Dashboard/Headlamp ist wie folgt erreichbar:
+
+    https://${fqdn}:30443
+    http://${fqdn}:30444
     
-Build (CI/CD): 
-    ssh -i ~/.ssh/lerncloud ubuntu@${build_fqdn}
+Zugriffstoken für Headlamp erstellen:
 
-Production (Control-Plane und Worker-Nodes):
-    ssh -i ~/.ssh/lerncloud ubuntu@${fqdn}
-    ssh -i ~/.ssh/lerncloud ubuntu@${worker_01_fqdn}
-    ssh -i ~/.ssh/lerncloud ubuntu@${worker_02_fqdn}   
-    
-Services
---------
+    kubectl create token Headlamp-admin -n kube-system   
 
-Development:
-- http://${development_fqdn}:32188/tree/k8sd2o/data/01-dev/README.ipynb - Beispiele Infrastruktur (Jupyter Notebooks)
-- https://${development_fqdn}:30443                                - Kubernetes Dashboard (kein Token notwendig, Überspringen drücken)
-- https://${development_fqdn}:4200                                 - Terminal im Browser. User: ubuntu, Password insecure
-- http://${development_fqdn}:7500                                  - FRP (Fast Reverse Proxy). User: admin, Password insecure
+Beispiele
+---------
 
-Build (CI/CD):
-- http://${build_fqdn}:32188/tree/k8sd2o/data/02-build/README.ipynb  - Beispiele Infrastruktur (Jupyter Notebooks)
-- http://${build_fqdn}                                          - Gitlab CE 
-- https://${build_fqdn}:30443                                   - Kubernetes Dashboard (kein Token notwendig, Überspringen drücken)
-- https://${build_fqdn}:4200                                    - Terminal im Browser. User: ubuntu, Password insecure
+Die Umgebung beinhaltet eine Vielzahl von Beispielen als Juypter Notebooks. Die Jupyter Lab Oberfläche ist wie folgt erreichbar:
 
-Production:
-- http://${fqdn}:32188/tree/k8sd2o/data/03-prod/README.ipynb - Beispiele Infrastruktur (Jupyter Notebooks)
-- https://${fqdn}:30443                                 - Kubernetes Dashboard (kein Token notwendig, Überspringen drücken)
-- https://${fqdn}:4200                                  - Terminal im Browser. User: ubuntu, Password insecure
-
+    http://${fqdn}:33188/lab/tree/k8sd2o
