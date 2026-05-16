@@ -20,4 +20,4 @@ Beispiele
 
 Die Umgebung beinhaltet eine Vielzahl von Beispielen als Juypter Notebooks. Die Jupyter Lab Oberfläche ist wie folgt erreichbar:
 
-    http://${fqdn}:33188/lab/tree/k8sd2o
+    http://${fqdn}:18888/lab/tree/k8sd2o
