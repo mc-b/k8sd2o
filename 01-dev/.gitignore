@@ -1,3 +1,7 @@
 /shop/
 /kubernetes-templates/
 /skaffold.yaml
+/capi-docker.kubeconfig
+/capi-docker.yaml
+/clusterctl
+/.ipynb_checkpoints/
