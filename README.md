@@ -4,11 +4,13 @@ Lerne, wie du Kubernetes und das Cloud-Native-Ökosystem nutzt. Blicke hinter Op
 
 ### Lernziele
 
-* Verstehen der Herausforderungen und Aufgaben von Kubernetes Day-2-Operations
-* Erwerben der Fähigkeit zur strukturierten Analyse von Betriebsaspekten in Kubernetes
-* Kennen von zentralen CNCF.io-Projekten zur Lösung typischer Aufgaben im Betrieb
-* Anwenden der Tools auf reale Szenarien anhand eines durchgängigen Fallbeispiels
-* Entwickeln eines Tool-Stacks für produktive Kubernetes-Umgebungen
+* Beurteilen der Grundlagen einer souveränen Cloud
+* Abbilden typischer Cloud-Services auf Kubernetes
+* Umsetzen von IaaS-, PaaS-, SaaS- und FaaS-Diensten mit Cloud-Native-Technologien
+* Einsetzen von Kubernetes als gemeinsame API für Infrastruktur- und Plattformdienste
+* Fachliches Beurteilen und gezieltes Ergänzen integrierter Kubernetes-Plattformen
+* Erkennen und Reduzieren von Abhängigkeiten von proprietären Cloud-Services und Distributionen
+* Auswählen geeigneter Open-Source- und Cloud-Native-Projekte (CNCF) für eine Cloud-Plattform
 
 ### Quick Start
 
