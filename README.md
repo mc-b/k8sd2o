@@ -1,6 +1,6 @@
-# Beispiele zum Kurs: [Kubernetes 2-Day Operations mit CNCF ](https://www.digicomp.ch/d/k8sd2o)
+# Beispiele zum Kurs: [Souveräne Cloud mit Kubernetes](https://www.digicomp.ch/d/k8sd2o)
 
-Erkunden Sie im Kurs das CNCF-Ökosystem rund um Kubernetes. Lernen Sie in zwei Tagen, wie Sie durch den Einsatz ausgesuchter CNCF-Projekte Ihre Kubernetes-Infrastruktur und Ihre Microservices sicherer, effizienter und nachhaltiger betreiben können.
+Lerne, wie du Kubernetes und das Cloud-Native-Ökosystem nutzt. Blicke hinter OpenShift oder SUSE und erfahre, wie Cloud-Dienste aufgebaut sind. Dabei stehen Cloud-Souveränität, offene Standards und die Kontrolle über deine Daten im Mittelpunkt.
 
 ### Lernziele
 

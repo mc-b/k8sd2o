@@ -3,7 +3,7 @@ kind: Component
 metadata:
   name: k8sd2o
   namespace: mc-b
-  description: 'Kurs: Kubernetes 2-Day Operations mit CNCF'
+  description: 'Kurs: Souveräne Cloud mit Kubernetes'
   tags:
   - containers
   - docker
