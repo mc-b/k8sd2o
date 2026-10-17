@@ -23,7 +23,7 @@ metadata:
     # backstage.io/techdocs-ref: url:https://github.com/mc-b/k8sd2o
 spec:
   type: website
-  lifecycle: experimental
+  lifecycle: production
   owner: group:mc-b/mc-b
   dependsOn:
   - component:mc-b/duk  
